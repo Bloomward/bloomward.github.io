@@ -1,3 +1,297 @@
-<canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
-<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
-<script type="text/javascript" src="/js/firework.js"></script>
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Bloomward</title><meta name="author" content="Bloomward"><meta name="copyright" content="Bloomward"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Bloomward">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="Bloomward">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/favicon.png">
+<meta property="article:author" content="Bloomward">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Bloomward",
+  "alternateName": [
+    "example.com"
+  ],
+  "url": "http://example.com/"
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'medium_zoom',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Bloomward',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comments"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(/img/bg.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Bloomward</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comments"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">Bloomward</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/Bloomward/" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:bloomhomeward@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="post_cover left"><a href="/2024/11/16/vulntarget-n/" title="vulntarget-n"><img class="post-bg" src="/../imgs/vulntarget-n.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vulntarget-n"></a></div><div class="recent-post-info"><a class="article-title" href="/2024/11/16/vulntarget-n/" title="vulntarget-n">vulntarget-n</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-11-16T12:16:47.000Z" title="发表于 2024-11-16 20:16:47">2024-11-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E9%9D%B6%E5%9C%BA%E9%80%9A%E5%85%B3/">靶场通关</a></span></div><div class="content">前言在面对勒索病毒这样的网络威胁时，我们不能被动等待，而要积极应对。我们需要了解攻击的原理和过程，熟练掌握应急响应和取证分析的技术，以便在面对真实的威胁时能够迅速有效地应对。 vulntarget-n是一个模拟全球化勒索病毒高发环境下的应急响应和取证分析案例，其模拟了一个正常运行的业务服务被勒索病毒攻击的情景：  客户在阿里云部署的业务环境 今天突然发现首页变成了一个勒索的界面，要求用户支付赎金以解密数据 客户发现其中部分重要文件被加密为.vulntarget结尾   随即客户要你进行应急响应并取证分析，因为是阿里云的ECS，客户将阿里云ECS实例镜像导出到本地，要求你在明天分析出结果。 具体要求如下：  分析攻击事件是如何发生的，请给出攻击画像 解密勒索 恢复原来的index.jsp页面，恢复正常的web服务 找到隐藏在其中的3个flag  已知服务器系统为Ubuntu20.04，账号密码： 账号：root 密码：Vulntarget@123 ps：在本次靶场设计中少了一次反弹shell的操作，主要是防止设计者的ip出现泄露，在攻击路径描述中可以直接把反弹shell的步骤加上即...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2024/10/27/vulntarget-m/" title="vulntarget-m"><img class="post-bg" src="/../imgs/vulntarget-m.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vulntarget-m"></a></div><div class="recent-post-info"><a class="article-title" href="/2024/10/27/vulntarget-m/" title="vulntarget-m">vulntarget-m</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-10-27T14:03:25.000Z" title="发表于 2024-10-27 22:03:25">2024-10-27</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E9%9D%B6%E5%9C%BA%E9%80%9A%E5%85%B3/">靶场通关</a></span></div><div class="content">前言 拓扑   入口机为双网卡，外网可以根据自身情况，设置桥接或nat模式，内网ip固定位192.168.137.20 内网机02为仅主机模式，ip固定位192.168.137.10，该ip不能变更。 内网机03为仅主机模式，ip固定位192.168.137.30  三台机子的账号密码均为vulntarget，该密码仅限调试环境使用，并不是给你用来应急的，应急需要从漏洞打进去才能应急   注意事项  本次环境vulntarget-m内网靶场主要为内网渗透+应急响应设定，其中应急部分主要涉及java内存马、后门等，因为在靶标中含有多个内存马，所以您在本地使用Vmware复现该环境时，只能够通过回滚快照的方法来重置环境，不能够将环境直接重启，重启会导致内存马失效。 同样因为内存马的特殊性，可能会导致在攻防时出现一些问题，例如在注入内存马时因为路径问题、类型问题导致的覆盖、冲突等，这时可能需要多次尝试。  环境描述  某公司将自己公司的业务搬到了云上，并存在内网服务，公司运维人员主要通过远程ssh登录入口机，对服务进行日常维护和管理。 在前段时间，某国外黑客发现该公司的入口机存在漏洞，...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2023/03/04/NAS-DDNSGO/" title="DDNS GO实现动态解析"><img class="post-bg" src="/../imgs/ddns-go.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DDNS GO实现动态解析"></a></div><div class="recent-post-info"><a class="article-title" href="/2023/03/04/NAS-DDNSGO/" title="DDNS GO实现动态解析">DDNS GO实现动态解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-03-04T06:16:50.000Z" title="发表于 2023-03-04 14:16:50">2023-03-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%98%E8%85%BE%E5%AE%9E%E5%BD%95/">折腾实录</a></span></div><div class="content">首先到套件中心安装ddns-go  接着打开ddns-go后填写ID、token和Domains的信息即可，腾讯云的话可以直接点击创建密钥来生成ID和token  具体可参考文章：https://cloud.tencent.com/developer/article/1921363    然后回到nas的控制面板里直接去搜索一下证书找到位置进行新增证书    然后去之前申请证书的dnspod中下载证书文件，这里选择nginx  将下载的证书文件导入即可  </div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2023/02/27/NAS%E5%90%8E%E7%BB%AD-%E5%AE%89%E8%A3%85%E9%BB%91%E7%BE%A4%E6%99%96/" title="NAS后续-安装黑群晖"><img class="post-bg" src="/../imgs/NAS-QH.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="NAS后续-安装黑群晖"></a></div><div class="recent-post-info"><a class="article-title" href="/2023/02/27/NAS%E5%90%8E%E7%BB%AD-%E5%AE%89%E8%A3%85%E9%BB%91%E7%BE%A4%E6%99%96/" title="NAS后续-安装黑群晖">NAS后续-安装黑群晖</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-02-27T13:27:33.000Z" title="发表于 2023-02-27 21:27:33">2023-02-27</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%98%E8%85%BE%E5%AE%9E%E5%BD%95/">折腾实录</a></span></div><div class="content">首先上GitHub找到arpl，下载这个img的文件（这个格式是通用的，可供物理机也可供虚拟机使用）  接着解压得到img文件，利用图吧工具箱中的Rufus将其刷到U盘里  然后把刷好的U盘放到NAS主机上，开机进BIOS设置从U盘启动（一般是默认好的），确认无误后点击save&amp;exit进行重启  当编译系统出现如下页面时就表示已经启动好了，我们需要记下编译系统的IP地址（这里我们路由器开了DHCP，系统会自动去获取IP地址，记得插上网线哦）  在同一局域网下，使用另外一台电脑的浏览器打开编译系统显示的IP地址和端口，会显示以下界面，在Choose a model处回车显示出本机可编译黑群晖的型号  这里我们选的是DS920+，用方向键选好以后按回车键  接下来在Choose a Build Number处回车  选择我们想要编译的黑群晖版本，这里我们选择的是最新的7.1.1-42962版本   在Choose a serial number处回车  接着在Generate a random serial number处回车，编译系统会随机生成一个序列号  在Addons...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2023/02/25/%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0NAS/" title="年轻人的第一台NAS"><img class="post-bg" src="/../imgs/NAS-DIY.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="年轻人的第一台NAS"></a></div><div class="recent-post-info"><a class="article-title" href="/2023/02/25/%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0NAS/" title="年轻人的第一台NAS">年轻人的第一台NAS</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-02-25T14:47:51.000Z" title="发表于 2023-02-25 22:47:51">2023-02-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%98%E8%85%BE%E5%AE%9E%E5%BD%95/">折腾实录</a></span></div><div class="content">准备工作需要购置的零件有机箱（可以自己单独购买电源）、主板、内存条、硬盘 1.机箱这里我买的是拓普龙6盘位NAS服务器机箱，不过不建议买6口的（贼难装，难怪没啥人买这款，早知道就不贪便宜直接买个8口的机箱要好装多了🤔）  开箱如下，还不错的一点就是给配了一大包螺丝😘但是没分开来包装不好找要用的   2.电源这里电源我是单独购买的台达150W电源（他喵的~我买的时候还需要12块运费，现在就变免运费啦🤡  开箱如下，一块电源以及一根电源线  3.主板主板我选的是映泰j4125，买的时候涨价了好贵~ 于是我选择了pdd购买能便宜挺多的   4.内存条内存要求就不是很高了，随便买个4G的就行，不过有点需要注意的是颗粒数量，一定得买4颗粒的，商家一般都不会写出来所以比较坑  如果不是4颗粒的，测试的时候就会出现如下问题，毫无反应（我这个内存应该拆开是8颗粒的😣以及这里U盘是要插在后面主板上的）  5.硬盘这里我选的是海康威视的监控硬盘，两块4T的大概就花了七百块，依旧还是上pdd采购节省开销  安装过程其实nas说好装也好装，说不好装也不好装😂就是一个萝卜一个坑 先把电源根据机箱...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2023/02/12/%E6%B5%85%E8%AE%B0%E7%B1%B3%E5%AE%B6%E7%94%B5%E8%84%91%E5%BC%80%E6%9C%BA%E5%8D%A1%E7%9A%84%E5%AE%89%E8%A3%85/" title="浅记米家电脑开机卡的安装"><img class="post-bg" src="/../imgs/MiCard.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="浅记米家电脑开机卡的安装"></a></div><div class="recent-post-info"><a class="article-title" href="/2023/02/12/%E6%B5%85%E8%AE%B0%E7%B1%B3%E5%AE%B6%E7%94%B5%E8%84%91%E5%BC%80%E6%9C%BA%E5%8D%A1%E7%9A%84%E5%AE%89%E8%A3%85/" title="浅记米家电脑开机卡的安装">浅记米家电脑开机卡的安装</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-02-12T11:36:40.000Z" title="发表于 2023-02-12 19:36:40">2023-02-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%98%E8%85%BE%E5%AE%9E%E5%BD%95/">折腾实录</a></span></div><div class="content">准备工作简单的记录一下利用米家电脑开机卡配合小爱音响实现语言控制开关机 我们只需要购置个最便宜的米家mesh开机卡mini版即可（当然电脑和小爱音响这边已经有了🤣）    安装过程步入正题，拆开自己的电脑，断开电源并将开机卡插到主板对应位置 下面以我的主板为例，需要插拔的地方就是如下两处  找到自己主板上PCIEX1口和插着POWER SW线的位置（上图更清晰一些），先将主板上的POWER SW线拔下来，插入到开机卡上空着的引脚上，再将开机卡上的那根POWER SW线插入到主板上（也可以看下图操作）  这里拔的时候很容易将其他的线也拔下来，所以我们根据下图所示，依次将POWER SW线(右上角)、POWER LED线(左上角，+左-右)、HDDLED线(左下角)、RESET SW线(右下角)（这里的位置是面向自己，上四下五，插的时候有字的一面朝向自己的方向插入）  最后将显卡啥的都装好后开启电源，手机就会弹出一个情景Mesh通断器TM系列并将其添加至米家，可以看到这里设备是离线的  点进去看到好像是什么蓝牙直连的，于是打开蓝牙确实有个Mesh Ali_Mi Light的蓝牙设备...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/10/esp8266towifi/" title="esp8266钓鱼获取指定WiFi密码"><img class="post-bg" src="/../imgs/esp8266towifi.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="esp8266钓鱼获取指定WiFi密码"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/10/esp8266towifi/" title="esp8266钓鱼获取指定WiFi密码">esp8266钓鱼获取指定WiFi密码</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-08-10T11:41:36.000Z" title="发表于 2022-08-10 19:41:36">2022-08-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%A0%94%E7%A9%B6%E9%9A%8F%E7%AC%94/">研究随笔</a></span></div><div class="content">前言前段时间收拾东西在以前瞎捣鼓的智能灯上把esp8266拆了下来，想着拿来研究无线电这块的知识，然后发现了一篇 用ESP8266无线模块进行钓鱼渗透测试 的文章，接下来就来复现一下吧  准备工作硬件方面：esp8266 无线模块（我的和作者一样是块esp01）、USB 转 TTL 烧录器 软件方面：ESP8266Flasher - nodemcu、XCOM串口调试助手、作者更新的固件 12链接：https://pan.baidu.com/s/1NiO9Ty_zDIvia-IgOtqrxw提取码：qkck  烧录将我们的esp8266-01与烧录器连接然后插入电脑上，接着打开设备管理器找到 cp210x 这个端口  接着我们打开nodemcu，在operation模块下选择com6端口  然后在config模块下，输入固件路径，烧录地址 0x00000  最后回到operation模块，点击 flash 开始烧录，当出现绿勾则说明烧录成功，如果烧录失败请擦除 flash 后重试（本人暂无出现失败情况  测试 wifi名称FishAP，密码：gkdamm666 后台：http://...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/08/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%94%9F%E6%88%90%E8%99%9A%E5%81%87WiFi/" title="记一次生成虚假WiFi"><img class="post-bg" src="/../imgs/esp8266towifi.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一次生成虚假WiFi"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%94%9F%E6%88%90%E8%99%9A%E5%81%87WiFi/" title="记一次生成虚假WiFi">记一次生成虚假WiFi</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-08-10T08:41:33.000Z" title="发表于 2022-08-10 16:41:33">2022-08-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%A0%94%E7%A9%B6%E9%9A%8F%E7%AC%94/">研究随笔</a></span></div><div class="content">前期准备kali + 无线网卡 操作过程首先我们需要装一下mkd3 1sudo apt-get install mdk3  接着连下我们的无线网卡  然后我们 iwconfig 查看下是否真的连上  添加mon0 12iw wlan0 interface add mon0 type monitoriwconfig 检测一下是否成功   填写WiFi名字 1234vi wifi.lst输入i进行编辑（如果你不知道的话我给你提醒一下输入你想要取的WiFi名字Ctrl+C 然后 :wq或者:x实现保存并退出（如果你不知道的话我给你提醒一下   最后生成WiFi 1mdk3 mon0 b -f wifi.lst   </div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2021/11/09/OllydbgStudy/" title="入门OD打开逆向世界大门之日穿我校某考试系统软件"><img class="post-bg" src="/../imgs/OllydbgStudy.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="入门OD打开逆向世界大门之日穿我校某考试系统软件"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/11/09/OllydbgStudy/" title="入门OD打开逆向世界大门之日穿我校某考试系统软件">入门OD打开逆向世界大门之日穿我校某考试系统软件</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-11-08T17:16:28.000Z" title="发表于 2021-11-09 01:16:28">2021-11-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BA%A2%E9%98%9F%E7%AC%94%E8%AE%B0/">红队笔记</a></span></div><div class="content">前言这学期上数据库课用到了我校某老师自己开发的一个考试系统软件，然后在一次小测中这垃圾系统我语句明明就是对的，可它编译就一直报错说我语法错误，实在受不了那就来盘一下他（授权测试的，用户在测试成功后已删除。 注：此文章仅限于安全研究，违法犯罪与作者无关！ 逆向分析将程序载入OD这个程序是加了一个ASPack的壳子，直接用ESP定律找到OEP  F9运行到了OEP附近，走过这个retn  现在就来到了OEP（如果你的OD显示的都是db的话用右键-&gt;分析-&gt;从模块中删除目标扫描），然后删掉之前下的硬件断点  然后继续单步……（balabala 或者我们直接利用工具将它脱壳然后将其导入，右键-&gt;中文搜索引擎-&gt;智能搜索  接着搜索字符串password&#x3D;我们的目的是找数据库的连接信息  然后跟随过去后在段首下一个断点  F9运行程序，发现程序已经段下来了，右边的寄存器窗口中显示的就是连接信息，但不全面  继续F8单步，运行到我们找到的 password= 附近的call，看到堆栈窗口中已经完全显示了连接信息  渗透提权得到账号密码后，我们就开始sqlse...</div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Bloomward</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Bloomward/" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:bloomhomeward@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/11/16/vulntarget-n/" title="vulntarget-n"><img src="/../imgs/vulntarget-n.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vulntarget-n"/></a><div class="content"><a class="title" href="/2024/11/16/vulntarget-n/" title="vulntarget-n">vulntarget-n</a><time datetime="2024-11-16T12:16:47.000Z" title="发表于 2024-11-16 20:16:47">2024-11-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/10/27/vulntarget-m/" title="vulntarget-m"><img src="/../imgs/vulntarget-m.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vulntarget-m"/></a><div class="content"><a class="title" href="/2024/10/27/vulntarget-m/" title="vulntarget-m">vulntarget-m</a><time datetime="2024-10-27T14:03:25.000Z" title="发表于 2024-10-27 22:03:25">2024-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/03/04/NAS-DDNSGO/" title="DDNS GO实现动态解析"><img src="/../imgs/ddns-go.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DDNS GO实现动态解析"/></a><div class="content"><a class="title" href="/2023/03/04/NAS-DDNSGO/" title="DDNS GO实现动态解析">DDNS GO实现动态解析</a><time datetime="2023-03-04T06:16:50.000Z" title="发表于 2023-03-04 14:16:50">2023-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/27/NAS%E5%90%8E%E7%BB%AD-%E5%AE%89%E8%A3%85%E9%BB%91%E7%BE%A4%E6%99%96/" title="NAS后续-安装黑群晖"><img src="/../imgs/NAS-QH.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="NAS后续-安装黑群晖"/></a><div class="content"><a class="title" href="/2023/02/27/NAS%E5%90%8E%E7%BB%AD-%E5%AE%89%E8%A3%85%E9%BB%91%E7%BE%A4%E6%99%96/" title="NAS后续-安装黑群晖">NAS后续-安装黑群晖</a><time datetime="2023-02-27T13:27:33.000Z" title="发表于 2023-02-27 21:27:33">2023-02-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/25/%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0NAS/" title="年轻人的第一台NAS"><img src="/../imgs/NAS-DIY.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="年轻人的第一台NAS"/></a><div class="content"><a class="title" href="/2023/02/25/%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0NAS/" title="年轻人的第一台NAS">年轻人的第一台NAS</a><time datetime="2023-02-25T14:47:51.000Z" title="发表于 2023-02-25 22:47:51">2023-02-25</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%98%E8%85%BE%E5%AE%9E%E5%BD%95/"><span class="card-category-list-name">折腾实录</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%A0%94%E7%A9%B6%E9%9A%8F%E7%AC%94/"><span class="card-category-list-name">研究随笔</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BA%A2%E9%98%9F%E7%AC%94%E8%AE%B0/"><span class="card-category-list-name">红队笔记</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9D%B6%E5%9C%BA%E9%80%9A%E5%85%B3/"><span class="card-category-list-name">靶场通关</span><span class="card-category-list-count">2</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/fakewifi/" style="font-size: 1.1em; color: #999">fakewifi</a> <a href="/tags/Ollydbg/" style="font-size: 1.1em; color: #999">Ollydbg</a> <a href="/tags/vulntarget/" style="font-size: 1.3em; color: #99a1ac">vulntarget</a> <a href="/tags/esp8266/" style="font-size: 1.1em; color: #999">esp8266</a> <a href="/tags/%E7%B1%B3%E5%AE%B6%E7%94%B5%E8%84%91%E5%BC%80%E6%9C%BA%E5%8D%A1/" style="font-size: 1.1em; color: #999">米家电脑开机卡</a> <a href="/tags/NAS/" style="font-size: 1.5em; color: #99a9bf">NAS</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/11/">
+            <span class="card-archive-list-date">
+              十一月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/10/">
+            <span class="card-archive-list-date">
+              十月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/03/">
+            <span class="card-archive-list-date">
+              三月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/02/">
+            <span class="card-archive-list-date">
+              二月 2023
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/08/">
+            <span class="card-archive-list-date">
+              八月 2022
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2021/11/">
+            <span class="card-archive-list-date">
+              十一月 2021
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">9</div></div><div class="webinfo-item"><div class="item-name">运行时间 :</div><div class="item-count" id="runtimeshow" data-publishDate="2026-01-29T16:00:00.000Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-01-31T11:55:32.888Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By Bloomward</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js"></script><div class="js-pjax"><script>window.typedJSFn = {
+  init: str => {
+    window.typed = new Typed('#subtitle', Object.assign({
+      strings: str,
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50,
+    }, null))
+  },
+  run: subtitleType => {
+    if (true) {
+      if (typeof Typed === 'function') {
+        subtitleType()
+      } else {
+        btf.getScript('https://cdn.jsdelivr.net/npm/typed.js@3.0.0/dist/typed.umd.min.js').then(subtitleType)
+      }
+    } else {
+      subtitleType()
+    }
+  },
+  processSubtitle: (content, extraContents = []) => {
+    if (true) {
+      const sub = ["Take your time.","I’ll be where the flowers bloom."].slice()
+
+      if (extraContents.length > 0) {
+        sub.unshift(...extraContents)
+      }
+
+      if (typeof content === 'string') {
+        sub.unshift(content)
+      } else if (Array.isArray(content)) {
+        sub.unshift(...content)
+      }
+
+      sub.length > 0 && typedJSFn.init(sub)
+    } else {
+      document.getElementById('subtitle').textContent = typeof content === 'string' ? content :
+        (Array.isArray(content) && content.length > 0 ? content[0] : '')
+    }
+  }
+}
+btf.addGlobalFn('pjaxSendOnce', () => { typed.destroy() }, 'typedDestroy')
+</script><script>function subtitleType () {
+  typedJSFn.processSubtitle(["Take your time.","I’ll be where the flowers bloom."])
+}
+typedJSFn.run(subtitleType)</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/gh/xiabo2/CDN@latest/fishes.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
